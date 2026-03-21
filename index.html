@@ -4,241 +4,144 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>School Club Management</title>
-
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 40px 20px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-h1 {
-  color: white;
-  text-align: center;
-  margin-bottom: 50px;
-  font-size: 3em;
-}
-
-/* TOP RIGHT GEAR */
-.top-bar {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.gear {
-  font-size: 28px;
-  cursor: pointer;
-  color: white;
-}
-
-.auth-menu {
-  display: none;
-  position: absolute;
-  right: 0;
-  margin-top: 10px;
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-.auth-menu button {
-  display: block;
-  width: 200px;
-  margin: 5px 0;
-  padding: 10px;
-  border: none;
-  background: #667eea;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.user-info {
-  color: white;
-  text-align: right;
-  margin-bottom: 10px;
-}
-
-#profileInfo img {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  vertical-align: middle;
-  margin-right: 10px;
-}
-
-.clubs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-}
-
-.club-folder {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.club-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
-  text-align: center;
-}
-
-.club-content {
-  padding: 30px;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; padding: 40px 20px; transition: background 0.5s ease; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { color: white; text-align: center; margin-bottom: 50px; font-size: 3em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+  .clubs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px,1fr)); gap:30px; margin-bottom:50px; }
+  .club-folder { background:white; border-radius:15px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.2); transition:transform 0.3s ease, box-shadow 0.3s ease; cursor:pointer; }
+  .club-folder:hover { transform: translateY(-10px); box-shadow:0 15px 40px rgba(0,0,0,0.3); }
+  .club-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:30px; text-align:center; }
+  .club-header h2 { font-size:2em; margin-bottom:10px; }
+  .club-description { font-size:1.1em; opacity:0.9; }
+  .club-content { padding:30px; }
+  .section-title { font-size:1.3em; color:#333; margin-bottom:15px; font-weight:bold; border-bottom:2px solid #667eea; padding-bottom:10px; }
+  #authMenu { position:absolute; top:20px; right:20px; display:flex; align-items:center; gap:10px; }
+  #authMenu img { width:40px; height:40px; border-radius:50%; }
+  .auth-btn { padding:10px 20px; border:none; border-radius:25px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; cursor:pointer; transition: transform 0.2s ease; }
+  .auth-btn:hover { transform: scale(1.05); }
+  .bg-selector { position:absolute; top:80px; right:20px; display:flex; flex-direction:column; gap:10px; }
+  .bg-btn { padding:8px 15px; border:none; border-radius:15px; cursor:pointer; color:white; font-weight:bold; }
 </style>
 </head>
-
 <body>
-
-<div class="top-bar">
-  <div class="gear" onclick="toggleMenu()">⚙️</div>
-
-  <div id="authMenu" class="auth-menu">
-    <div id="profileInfo" style="margin-bottom:10px;"></div>
-    <button onclick="login()">Login with Google</button>
-    <button onclick="logout()">Logout</button>
-    <div style="margin-top:10px;">
-      <label for="bgSelect">Background:</label>
-      <select id="bgSelect" onchange="changeBackground(this.value)">
-        <option value="default">Purple Gradient</option>
-        <option value="greenorange">Green → Orange</option>
-        <option value="bluepink">Blue → Pink</option>
-        <option value="sunset">Sunset</option>
-      </select>
-    </div>
-  </div>
+<div id="authMenu"></div>
+<div class="bg-selector">
+  <button class="bg-btn" style="background:linear-gradient(135deg,#667eea,#764ba2)" onclick="changeBackground('default')">Purple</button>
+  <button class="bg-btn" style="background:linear-gradient(135deg,#00b09b,#96c93d)" onclick="changeBackground('greenorange')">Green/Orange</button>
+  <button class="bg-btn" style="background:linear-gradient(135deg,#2193b0,#6dd5ed)" onclick="changeBackground('bluepink')">Blue/Pink</button>
+  <button class="bg-btn" style="background:linear-gradient(135deg,#ff7e5f,#feb47b)" onclick="changeBackground('sunset')">Sunset</button>
 </div>
-
 <div class="container">
   <h1>🎓 School Clubs</h1>
-
-  <div class="clubs-grid">
-    <div class="club-folder">
-      <div class="club-header">
-        <h2>Raptor Reportz</h2>
-      </div>
-      <div class="club-content"></div>
-    </div>
-
-    <div class="club-folder">
-      <div class="club-header">
-        <h2>Chess Club</h2>
-        <p>Excel Only</p>
-      </div>
-      <div class="club-content"></div>
-    </div>
-
-    <div class="club-folder">
-      <div class="club-header">
-        <h2>Excel</h2>
-      </div>
-      <div class="club-content"></div>
-    </div>
-  </div>
+  <div class="clubs-grid"></div>
 </div>
 
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+<script type="module">
+  // ---------------- Auth0 Setup ----------------
+  import createAuth0Client from "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@1.30.0/dist/auth0-spa-js.production.js";
 
-<script>
-let auth0Client = null;
-
-async function configureClient() {
-  auth0Client = await auth0.createAuth0Client({
-    domain: "dev-7zkwepz701chykhp.us.auth0.com",
-    clientId: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
-    authorizationParams: {
-      redirect_uri: window.location.origin + window.location.pathname
-    }
+  const auth0Client = await createAuth0Client({
+    domain: "YOUR_AUTH0_DOMAIN",   // e.g., dev-xxxxx.us.auth0.com
+    client_id: "YOUR_AUTH0_CLIENT_ID"
   });
-}
 
-async function login() {
-  await auth0Client.loginWithRedirect({
-    authorizationParams: {
-      connection: "google-oauth2"
+  let user = null;
+
+  async function updateUI() {
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    const menu = document.getElementById("authMenu");
+    menu.innerHTML = "";
+
+    if(isAuthenticated){
+      user = await auth0Client.getUser();
+      const img = document.createElement("img");
+      img.src = user.picture;
+      menu.appendChild(img);
+
+      const logoutBtn = document.createElement("button");
+      logoutBtn.className = "auth-btn";
+      logoutBtn.innerText = "Logout";
+      logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.href });
+      menu.appendChild(logoutBtn);
+
+      // Admin check
+      const admins = ["nowakdeclan@gmail.com"]; // your Gmail for admin
+      if(admins.includes(user.email)){
+        const addBtn = document.createElement("button");
+        addBtn.className = "auth-btn";
+        addBtn.innerText = "➕ Add Club";
+        addBtn.onclick = async () => {
+          const name = prompt("Club Name:");
+          if(!name) return;
+          const desc = prompt("Description:");
+          const { data, error } = await supabase.from("clubs").insert([{name,description:desc}]);
+          if(error){ alert("Error: "+error.message); }
+          else { alert("Club added!"); loadClubs(); }
+        };
+        menu.appendChild(addBtn);
+      }
+
+    } else {
+      const loginBtn = document.createElement("button");
+      loginBtn.className = "auth-btn";
+      loginBtn.innerText = "Login with Google";
+      loginBtn.onclick = () => auth0Client.loginWithRedirect();
+      menu.appendChild(loginBtn);
     }
-  });
-}
-
-function logout() {
-  auth0Client.logout({
-    logoutParams: {
-      returnTo: window.location.origin + window.location.pathname
-    }
-  });
-}
-
-function toggleMenu() {
-  const menu = document.getElementById("authMenu");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-async function updateUI() {
-  const isAuthenticated = await auth0Client.isAuthenticated();
-  const profileDiv = document.getElementById("profileInfo");
-  profileDiv.innerHTML = "";
-
-  if (isAuthenticated) {
-    const user = await auth0Client.getUser();
-    const img = document.createElement("img");
-    img.src = user.picture;
-    img.alt = "Profile picture";
-
-    const span = document.createElement("span");
-    span.innerText = user.name;
-
-    profileDiv.appendChild(img);
-    profileDiv.appendChild(span);
-  }
-}
-
-// Background changer
-function changeBackground(value) {
-  const body = document.body;
-  switch(value) {
-    case "default":
-      body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-      break;
-    case "greenorange":
-      body.style.background = "linear-gradient(135deg, #00b09b 0%, #96c93d 100%)";
-      break;
-    case "bluepink":
-      body.style.background = "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)";
-      break;
-    case "sunset":
-      body.style.background = "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)";
-      break;
-  }
-}
-
-window.onload = async () => {
-  await configureClient();
-
-  if (window.location.search.includes("code=")) {
-    await auth0Client.handleRedirectCallback();
-    window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  updateUI();
-};
+  // ---------------- Background Selector ----------------
+  function changeBackground(value){
+    const body = document.body;
+    switch(value){
+      case "default": body.style.background="linear-gradient(135deg,#667eea,#764ba2)"; break;
+      case "greenorange": body.style.background="linear-gradient(135deg,#00b09b,#96c93d)"; break;
+      case "bluepink": body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
+      case "sunset": body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
+    }
+    localStorage.setItem("bgChoice", value);
+  }
+  const savedBg = localStorage.getItem("bgChoice") || "default";
+  changeBackground(savedBg);
+
+  // ---------------- Supabase Setup ----------------
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";         
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgNnyyQa_5j9PCMv7YUdwZm-Z3FaHP1k";      
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  window.supabase = supabase;
+
+  // ---------------- Load Clubs ----------------
+  async function loadClubs(){
+    const clubsGrid = document.querySelector(".clubs-grid");
+    clubsGrid.innerHTML = "";
+    const { data: clubs, error } = await supabase.from("clubs").select("*");
+    if(error){ console.error(error); return; }
+    clubs.forEach(club=>{
+      const div = document.createElement("div");
+      div.className="club-folder";
+      div.innerHTML = `
+        <div class="club-header">
+          <h2>${club.name}</h2>
+          ${club.description? `<p class="club-description">${club.description}</p>` : ""}
+        </div>
+        <div class="club-content"></div>
+      `;
+      clubsGrid.appendChild(div);
+    });
+  }
+
+  // ---------------- Initialize ----------------
+  window.onload = async () => {
+    if(window.location.search.includes("code=")){
+      await auth0Client.handleRedirectCallback();
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    await updateUI();
+    loadClubs();
+  };
 </script>
-
 </body>
 </html>
