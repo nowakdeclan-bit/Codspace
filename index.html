@@ -150,7 +150,7 @@ async function configureClient() {
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
     clientId: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
     authorizationParams: {
-      redirect_uri: window.location.origin
+      redirect_uri: window.location.origin+ window.location.pathname
     }
   });
 }
