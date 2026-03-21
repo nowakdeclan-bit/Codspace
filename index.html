@@ -72,6 +72,14 @@ h1 {
   margin-bottom: 10px;
 }
 
+#profileInfo img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
 .clubs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -103,18 +111,25 @@ h1 {
   <div class="gear" onclick="toggleMenu()">⚙️</div>
 
   <div id="authMenu" class="auth-menu">
+    <div id="profileInfo" style="margin-bottom:10px;"></div>
     <button onclick="login()">Login with Google</button>
     <button onclick="logout()">Logout</button>
+    <div style="margin-top:10px;">
+      <label for="bgSelect">Background:</label>
+      <select id="bgSelect" onchange="changeBackground(this.value)">
+        <option value="default">Purple Gradient</option>
+        <option value="greenorange">Green → Orange</option>
+        <option value="bluepink">Blue → Pink</option>
+        <option value="sunset">Sunset</option>
+      </select>
+    </div>
   </div>
 </div>
 
 <div class="container">
-  <div id="userInfo" class="user-info"></div>
-
   <h1>🎓 School Clubs</h1>
 
   <div class="clubs-grid">
-
     <div class="club-folder">
       <div class="club-header">
         <h2>Raptor Reportz</h2>
@@ -136,7 +151,6 @@ h1 {
       </div>
       <div class="club-content"></div>
     </div>
-
   </div>
 </div>
 
@@ -150,7 +164,7 @@ async function configureClient() {
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
     clientId: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
     authorizationParams: {
-      redirect_uri: window.location.origin+ window.location.pathname
+      redirect_uri: window.location.origin + window.location.pathname
     }
   });
 }
@@ -166,7 +180,7 @@ async function login() {
 function logout() {
   auth0Client.logout({
     logoutParams: {
-      returnTo: window.location.origin
+      returnTo: window.location.origin + window.location.pathname
     }
   });
 }
@@ -178,11 +192,39 @@ function toggleMenu() {
 
 async function updateUI() {
   const isAuthenticated = await auth0Client.isAuthenticated();
+  const profileDiv = document.getElementById("profileInfo");
+  profileDiv.innerHTML = "";
 
   if (isAuthenticated) {
     const user = await auth0Client.getUser();
-    document.getElementById("userInfo").innerText =
-      "Logged in as: " + user.name;
+    const img = document.createElement("img");
+    img.src = user.picture;
+    img.alt = "Profile picture";
+
+    const span = document.createElement("span");
+    span.innerText = user.name;
+
+    profileDiv.appendChild(img);
+    profileDiv.appendChild(span);
+  }
+}
+
+// Background changer
+function changeBackground(value) {
+  const body = document.body;
+  switch(value) {
+    case "default":
+      body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+      break;
+    case "greenorange":
+      body.style.background = "linear-gradient(135deg, #00b09b 0%, #96c93d 100%)";
+      break;
+    case "bluepink":
+      body.style.background = "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)";
+      break;
+    case "sunset":
+      body.style.background = "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)";
+      break;
   }
 }
 
@@ -191,7 +233,7 @@ window.onload = async () => {
 
   if (window.location.search.includes("code=")) {
     await auth0Client.handleRedirectCallback();
-    window.history.replaceState({}, document.title, "/");
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 
   updateUI();
