@@ -16,7 +16,6 @@
   .club-header h2 { font-size:2em; margin-bottom:10px; }
   .club-description { font-size:1.1em; opacity:0.9; }
   .club-content { padding:30px; }
-  .section-title { font-size:1.3em; color:#333; margin-bottom:15px; font-weight:bold; border-bottom:2px solid #667eea; padding-bottom:10px; }
   #authMenu { position:absolute; top:20px; right:20px; display:flex; align-items:center; gap:10px; }
   #authMenu img { width:40px; height:40px; border-radius:50%; }
   .auth-btn { padding:10px 20px; border:none; border-radius:25px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; cursor:pointer; transition: transform 0.2s ease; }
@@ -43,8 +42,8 @@
   import createAuth0Client from "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@1.30.0/dist/auth0-spa-js.production.js";
 
   const auth0Client = await createAuth0Client({
-    domain: "YOUR_AUTH0_DOMAIN",   // e.g., dev-xxxxx.us.auth0.com
-    client_id: "YOUR_AUTH0_CLIENT_ID"
+    domain: "YOUR_AUTH0_DOMAIN",   // Replace with your Auth0 domain
+    client_id: "YOUR_AUTH0_CLIENT_ID" // Replace with your Auth0 client ID
   });
 
   let user = null;
@@ -67,7 +66,7 @@
       menu.appendChild(logoutBtn);
 
       // Admin check
-      const admins = ["nowakdeclan@gmail.com"]; // your Gmail for admin
+      const admins = ["nowakdeclan@gmail.com"]; 
       if(admins.includes(user.email)){
         const addBtn = document.createElement("button");
         addBtn.className = "auth-btn";
@@ -119,18 +118,20 @@
     clubsGrid.innerHTML = "";
     const { data: clubs, error } = await supabase.from("clubs").select("*");
     if(error){ console.error(error); return; }
-    clubs.forEach(club=>{
-      const div = document.createElement("div");
-      div.className="club-folder";
-      div.innerHTML = `
-        <div class="club-header">
-          <h2>${club.name}</h2>
-          ${club.description? `<p class="club-description">${club.description}</p>` : ""}
-        </div>
-        <div class="club-content"></div>
-      `;
-      clubsGrid.appendChild(div);
-    });
+    clubs
+      .filter(club => club.name !== "Excel Club") // hide Excel Club
+      .forEach(club=>{
+        const div = document.createElement("div");
+        div.className="club-folder";
+        div.innerHTML = `
+          <div class="club-header">
+            <h2>${club.name}</h2>
+            ${club.description? `<p class="club-description">${club.description}</p>` : ""}
+          </div>
+          <div class="club-content"></div>
+        `;
+        clubsGrid.appendChild(div);
+      });
   }
 
   // ---------------- Initialize ----------------
