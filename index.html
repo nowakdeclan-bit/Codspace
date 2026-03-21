@@ -5,52 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>School Club Management</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Segoe UI',sans-serif;min-height:100vh;padding:40px 20px;transition:background 0.5s;}
-  .container{max-width:1200px;margin:0 auto;}
-  h1{color:white;text-align:center;margin-bottom:50px;font-size:3em;text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
-  .clubs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px;margin-bottom:50px;}
-  .club-folder{background:white;border-radius:15px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.2);transition:transform 0.3s ease,box-shadow 0.3s ease;cursor:pointer;}
-  .club-folder:hover{transform:translateY(-10px);box-shadow:0 15px 40px rgba(0,0,0,0.3);}
-  .club-header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;text-align:center;}
-  .club-header h2{font-size:2em;margin-bottom:10px;}
-  .club-description{font-size:1.1em;opacity:0.9;}
-  #authMenu{position:absolute;top:20px;right:20px;display:flex;align-items:center;gap:10px;}
-  #authMenu img{width:40px;height:40px;border-radius:50%;}
-  .auth-btn{padding:10px 20px;border:none;border-radius:25px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;cursor:pointer;transition:transform 0.2s;}
-  .auth-btn:hover{transform:scale(1.05);}
-  .bg-selector{position:absolute;top:80px;right:20px;display:flex;flex-direction:column;gap:10px;}
-  .bg-btn{padding:8px 15px;border:none;border-radius:15px;cursor:pointer;color:white;font-weight:bold;}
+/* keep your existing styles here */
 </style>
 </head>
 <body>
 <div id="authMenu"></div>
 <div class="bg-selector">
-  <button class="bg-btn" style="background:linear-gradient(135deg,#667eea,#764ba2)" onclick="changeBackground('default')">Purple</button>
-  <button class="bg-btn" style="background:linear-gradient(135deg,#00b09b,#96c93d)" onclick="changeBackground('greenorange')">Green/Orange</button>
-  <button class="bg-btn" style="background:linear-gradient(135deg,#2193b0,#6dd5ed)" onclick="changeBackground('bluepink')">Blue/Pink</button>
-  <button class="bg-btn" style="background:linear-gradient(135deg,#ff7e5f,#feb47b)" onclick="changeBackground('sunset')">Sunset</button>
+  <button onclick="changeBackground('default')">Purple</button>
+  <button onclick="changeBackground('greenorange')">Green/Orange</button>
+  <button onclick="changeBackground('bluepink')">Blue/Pink</button>
+  <button onclick="changeBackground('sunset')">Sunset</button>
 </div>
 <div class="container">
   <h1>🎓 School Clubs</h1>
   <div class="clubs-grid"></div>
 </div>
 
-<script type="module">
-import createAuth0Client from "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@1.30.0/dist/auth0-spa-js.production.js";
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+<!-- Auth0 and Supabase CDN -->
+<script src="https://cdn.auth0.com/js/auth0-spa-js/1.30/auth0-spa-js.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
 
-const auth0Client = await createAuth0Client({
-  domain: "YOUR_AUTH0_DOMAIN",
-  client_id: "YOUR_AUTH0_CLIENT_ID"
-});
-
-const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
-const supabaseKey = "YOUR_ANON_PUBLIC_KEY";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
+<script>
+let auth0Client;
 let user = null;
 const admins = ["nowakdeclan@gmail.com"];
+const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
+const supabaseKey = "YOUR_ANON_PUBLIC_KEY";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function initAuth(){
+  auth0Client = await createAuth0Client({
+    domain: "YOUR_AUTH0_DOMAIN",
+    client_id: "YOUR_AUTH0_CLIENT_ID"
+  });
+
+  if(window.location.search.includes("code=")){
+    await auth0Client.handleRedirectCallback();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  updateUI();
+  loadClubs();
+}
 
 async function updateUI(){
   const isAuthenticated = await auth0Client.isAuthenticated();
@@ -64,30 +60,30 @@ async function updateUI(){
     menu.appendChild(img);
 
     const logoutBtn = document.createElement("button");
-    logoutBtn.className="auth-btn";
     logoutBtn.innerText="Logout";
-    logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.href });
+    logoutBtn.className="auth-btn";
+    logoutBtn.onclick = ()=> auth0Client.logout({ returnTo: window.location.href });
     menu.appendChild(logoutBtn);
 
     if(admins.includes(user.email)){
       const addBtn = document.createElement("button");
-      addBtn.className="auth-btn";
       addBtn.innerText="➕ Add Club";
-      addBtn.onclick = async () => {
+      addBtn.className="auth-btn";
+      addBtn.onclick = async ()=>{
         const name = prompt("Club Name:");
         if(!name) return;
         const desc = prompt("Description:");
         const { error } = await supabase.from("clubs").insert([{name,description:desc}]);
-        if(error){ alert("Error: "+error.message); } else { alert("Club added!"); loadClubs(); }
+        if(error) alert("Error: "+error.message); else { alert("Club added!"); loadClubs(); }
       };
       menu.appendChild(addBtn);
     }
 
   } else {
     const loginBtn = document.createElement("button");
-    loginBtn.className="auth-btn";
     loginBtn.innerText="Login with Google";
-    loginBtn.onclick = () => auth0Client.loginWithRedirect();
+    loginBtn.className="auth-btn";
+    loginBtn.onclick = ()=> auth0Client.loginWithRedirect();
     menu.appendChild(loginBtn);
   }
 }
@@ -108,33 +104,18 @@ async function loadClubs(){
   grid.innerHTML = "";
 
   const { data: clubs, error } = await supabase.from("clubs").select("name,description");
-  if(error){ console.error("Supabase error:", error); grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; return; }
+  if(error){ grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; console.error(error); return; }
   if(!clubs || clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
 
-  clubs
-    .filter(c => c && c.name && c.name !== "Excel Club")
-    .forEach(club=>{
-      const div = document.createElement("div");
-      div.className="club-folder";
-      div.innerHTML = `
-        <div class="club-header">
-          <h2>${club.name}</h2>
-          ${club.description ? `<p class="club-description">${club.description}</p>` : ""}
-        </div>
-        <div class="club-content"></div>
-      `;
-      grid.appendChild(div);
-    });
+  clubs.filter(c=>c && c.name && c.name!=="Excel Club").forEach(club=>{
+    const div = document.createElement("div");
+    div.className="club-folder";
+    div.innerHTML = `<div class="club-header"><h2>${club.name}</h2>${club.description ? `<p class="club-description">${club.description}</p>` : ""}</div>`;
+    grid.appendChild(div);
+  });
 }
 
-window.onload = async () => {
-  if(window.location.search.includes("code=")){
-    await auth0Client.handleRedirectCallback();
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-  await updateUI();
-  loadClubs();
-};
+window.onload = initAuth;
 </script>
 </body>
 </html>
