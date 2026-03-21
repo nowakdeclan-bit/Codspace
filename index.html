@@ -1,117 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>School Club Management</title>
-<style>
-/* ...keep the same styles from before... */
-</style>
-</head>
-<body>
-<div id="authMenu"></div>
-<div class="bg-selector">
-  <button onclick="changeBackground('default')">Purple</button>
-  <button onclick="changeBackground('greenorange')">Green/Orange</button>
-  <button onclick="changeBackground('bluepink')">Blue/Pink</button>
-  <button onclick="changeBackground('sunset')">Sunset</button>
-</div>
-<div class="container">
-  <h1>🎓 School Clubs</h1>
-  <div class="clubs-grid"></div>
-</div>
+async function loadClubs(){
+  const grid = document.querySelector(".clubs-grid");
+  grid.innerHTML = "";
 
-<script type="module">
-  import createAuth0Client from "https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@1.30.0/dist/auth0-spa-js.production.js";
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-  const auth0Client = await createAuth0Client({
-    domain: "YOUR_AUTH0_DOMAIN",
-    client_id: "YOUR_AUTH0_CLIENT_ID"
-  });
-
-  const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
-  const supabaseKey = "YOUR_ANON_PUBLIC_KEY";
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  let user = null;
-  const admins = ["nowakdeclan@gmail.com"];
-
-  async function updateUI() {
-    const isAuthenticated = await auth0Client.isAuthenticated();
-    const menu = document.getElementById("authMenu");
-    menu.innerHTML = "";
-
-    if(isAuthenticated){
-      user = await auth0Client.getUser();
-      const img = document.createElement("img");
-      img.src = user.picture;
-      menu.appendChild(img);
-
-      const logoutBtn = document.createElement("button");
-      logoutBtn.innerText = "Logout";
-      logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.href });
-      menu.appendChild(logoutBtn);
-
-      if(admins.includes(user.email)){
-        const addBtn = document.createElement("button");
-        addBtn.innerText = "➕ Add Club";
-        addBtn.onclick = async () => {
-          const name = prompt("Club Name:");
-          if(!name) return;
-          const desc = prompt("Description:");
-          const { error } = await supabase.from("clubs").insert([{name, description: desc}]);
-          if(error){ alert("Error: "+error.message); } else { alert("Club added!"); loadClubs(); }
-        };
-        menu.appendChild(addBtn);
-      }
-    } else {
-      const loginBtn = document.createElement("button");
-      loginBtn.innerText = "Login with Google";
-      loginBtn.onclick = () => auth0Client.loginWithRedirect();
-      menu.appendChild(loginBtn);
-    }
+  const { data: clubs, error } = await supabase.from("clubs").select("*");
+  if(error){ 
+    console.error("Supabase error:", error);
+    return; 
+  }
+  
+  if(!clubs || clubs.length === 0){
+    grid.innerHTML = "<p style='color:white;text-align:center;'>No clubs to display yet.</p>";
+    return;
   }
 
-  function changeBackground(value){
-    switch(value){
-      case "default": document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)"; break;
-      case "greenorange": document.body.style.background="linear-gradient(135deg,#00b09b,#96c93d)"; break;
-      case "bluepink": document.body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
-      case "sunset": document.body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
-    }
-    localStorage.setItem("bgChoice", value);
-  }
-  changeBackground(localStorage.getItem("bgChoice") || "default");
-
-  async function loadClubs(){
-    const grid = document.querySelector(".clubs-grid");
-    grid.innerHTML = "";
-    const { data: clubs, error } = await supabase.from("clubs").select("*");
-    if(error){ console.error(error); return; }
-    clubs
-      .filter(c => c.name !== "Excel Club")
-      .forEach(club=>{
-        const div = document.createElement("div");
-        div.className = "club-folder";
-        div.innerHTML = `
-          <div class="club-header">
-            <h2>${club.name}</h2>
-            ${club.description ? `<p>${club.description}</p>` : ""}
-          </div>
-        `;
-        grid.appendChild(div);
-      });
-  }
-
-  window.onload = async () => {
-    if(window.location.search.includes("code=")){
-      await auth0Client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    await updateUI();
-    loadClubs();
-  };
-</script>
-</body>
-</html>
+  clubs
+    .filter(c => c && c.name && c.name !== "Excel Club") // skip invalid rows & Excel Club
+    .forEach(club => {
+      const div = document.createElement("div");
+      div.className = "club-folder";
+      div.innerHTML = `
+        <div class="club-header">
+          <h2>${club.name}</h2>
+          ${club.description ? `<p class="club-description">${club.description}</p>` : ""}
+        </div>
+        <div class="club-content"></div>
+      `;
+      grid.appendChild(div);
+    });
+}
