@@ -116,7 +116,7 @@
   <div class="clubs-grid"></div>
 </div>
 
-<!-- Auth0 and Supabase CDNs -->
+<!-- Auth0 & Supabase -->
 <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -131,12 +131,10 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 // Toggle settings menu
 const wheel = document.getElementById('settingsWheel');
 const menu = document.getElementById('settingsMenu');
-wheel.onclick = () => {
-  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-}
+wheel.onclick = () => { menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex'; };
 
 // Initialize Auth0
-async function initAuth() {
+window.onload = async () => {
   auth0Client = await auth0.createAuth0Client({
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
     client_id: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
@@ -144,14 +142,14 @@ async function initAuth() {
     useRefreshTokens: true
   });
 
-  if (window.location.search.includes("code=")) {
+  if(window.location.search.includes("code=")){
     await auth0Client.handleRedirectCallback();
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
   await updateUI();
   await loadClubs();
-}
+};
 
 // Update Auth0 UI
 async function updateUI() {
@@ -161,7 +159,6 @@ async function updateUI() {
 
   if (isAuthenticated) {
     user = await auth0Client.getUser();
-
     const img = document.createElement("img");
     img.src = user.picture;
     authDiv.appendChild(img);
@@ -183,7 +180,6 @@ async function updateUI() {
       };
       authDiv.appendChild(addBtn);
     }
-
   } else {
     const loginBtn = document.createElement("button");
     loginBtn.innerText = "Login with Google";
@@ -207,12 +203,11 @@ function changeBackground(value){
 }
 changeBackground(localStorage.getItem("bgChoice") || "default");
 
-// Load clubs from Supabase
+// Load clubs
 async function loadClubs() {
   const grid = document.querySelector(".clubs-grid");
   if (!grid) return;
   grid.innerHTML = "";
-
   const { data: clubs, error } = await supabaseClient.from("clubs").select("*");
   if(error){ grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; console.error(error); return; }
   if(!clubs || clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
@@ -221,17 +216,10 @@ async function loadClubs() {
     if(!club.name) return;
     const div = document.createElement("div");
     div.className="club-folder";
-    div.innerHTML = `
-      <div class="club-header">
-        <h2>${club.name}</h2>
-        ${club.description ? `<p class="club-description">${club.description}</p>` : ""}
-      </div>
-    `;
+    div.innerHTML = `<div class="club-header"><h2>${club.name}</h2>${club.description ? `<p class="club-description">${club.description}</p>` : ""}</div>`;
     grid.appendChild(div);
   });
 }
-
-window.onload = initAuth;
 </script>
 </body>
 </html>
