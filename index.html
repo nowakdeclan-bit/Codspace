@@ -5,119 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>School Club Management</title>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: white;
-    transition: background 0.5s;
-  }
-
-  .container {
-    padding: 20px;
-  }
-
-  .clubs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-  }
-
-  .club-folder {
-    background: rgba(0,0,0,0.3);
-    padding: 10px;
-    border-radius: 6px;
-  }
-
-  .club-header h2 {
-    margin: 0;
-  }
-
-  .club-description {
-    font-size: 14px;
-  }
-
-  /* Settings wheel */
-  #settingsWheel {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    z-index: 1000;
-  }
-
-  #settingsWheel svg {
-    width: 100%;
-    height: 100%;
-    fill: white;
-  }
-
-  #settingsMenu {
-    position: fixed;
-    top: 60px;
-    right: 10px;
-    background: rgba(0,0,0,0.85);
-    border-radius: 8px;
-    padding: 10px;
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 1000;
-    min-width: 150px;
-  }
-
-  #settingsMenu button {
-    padding: 6px 10px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    background: #444;
-    color: white;
-  }
-
-  #settingsMenu img {
-    width: 40px;
-    border-radius: 50%;
-  }
-
-  .bg-selector button {
-    margin-bottom: 4px;
-    width: 100%;
-  }
+body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.5s;}
+.container{padding:20px;}
+.clubs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-top:20px;}
+.club-folder{background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;}
+.club-header h2{margin:0;}
+.club-description{font-size:14px;}
+#settingsWheel{position:fixed;top:10px;right:10px;width:40px;height:40px;cursor:pointer;z-index:1000;}
+#settingsWheel svg{width:100%;height:100%;fill:white;}
+#settingsMenu{position:fixed;top:60px;right:10px;background:rgba(0,0,0,0.85);border-radius:8px;padding:10px;display:none;flex-direction:column;gap:10px;z-index:1000;min-width:150px;}
+#settingsMenu button{padding:6px 10px;border-radius:4px;border:none;cursor:pointer;background:#444;color:white;}
+#settingsMenu img{width:40px;border-radius:50%;}
+.bg-selector button{margin-bottom:4px;width:100%;}
 </style>
 </head>
 <body>
 
 <!-- Settings Wheel -->
 <div id="settingsWheel">
-  <svg viewBox="0 0 24 24">
-    <path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.65l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a6.964 6.964 0 0 0-1.7-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.38 2.65c-.63.25-1.22.58-1.7.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46c-.14.24-.1.55.12.65l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.65l2 3.46c.14.24.43.34.61.22l2.49-1c.48.4 1.07.73 1.7.98l.38 2.65c.05.28.28.48.55.48h4c.27 0 .5-.2.55-.48l.38-2.65c.63-.25 1.22-.58 1.7-.98l2.49 1c.18.12.47.02.61-.22l2-3.46a.5.5 0 0 0-.12-.65l-2.11-1.65zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
-  </svg>
+<svg viewBox="0 0 24 24">
+<path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.65l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a6.964 6.964 0 0 0-1.7-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.38 2.65c-.63.25-1.22.58-1.7.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46c-.14.24-.1.55.12.65l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.65l2 3.46c.14.24.43.34.61.22l2.49-1c.48.4 1.07.73 1.7.98l.38 2.65c.05.28.28.48.55.48h4c.27 0 .5-.2.55-.48l.38-2.65c.63-.25 1.22-.58 1.7-.98l2.49 1c.18.12.47.02.61-.22l2-3.46a.5.5 0 0 0-.12-.65l-2.11-1.65zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
+</svg>
 </div>
 
 <!-- Settings Menu -->
 <div id="settingsMenu">
-  <div id="authMenu"></div>
-  <div class="bg-selector">
-    <button onclick="changeBackground('default')">Purple</button>
-    <button onclick="changeBackground('greenorange')">Green/Orange</button>
-    <button onclick="changeBackground('bluepink')">Blue/Pink</button>
-    <button onclick="changeBackground('sunset')">Sunset</button>
-    <button onclick="changeBackground('forest')">Forest</button>
-    <button onclick="changeBackground('sunrise')">Sunrise</button>
-    <button onclick="changeBackground('ocean')">Ocean</button>
-  </div>
+<div id="authMenu"></div>
+<div class="bg-selector">
+<button onclick="changeBackground('default')">Purple</button>
+<button onclick="changeBackground('greenorange')">Green/Orange</button>
+<button onclick="changeBackground('bluepink')">Blue/Pink</button>
+<button onclick="changeBackground('sunset')">Sunset</button>
+<button onclick="changeBackground('forest')">Forest</button>
+<button onclick="changeBackground('sunrise')">Sunrise</button>
+<button onclick="changeBackground('ocean')">Ocean</button>
+</div>
 </div>
 
 <div class="container">
-  <h1>🎓 School Clubs</h1>
-  <div class="clubs-grid"></div>
+<h1>🎓 School Clubs</h1>
+<div class="clubs-grid"></div>
 </div>
 
 <!-- Auth0 & Supabase -->
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -128,13 +59,16 @@ const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgNnyyQa_5j9PCMv7YUdwZm-Z3FaHP1k";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Toggle settings menu
-const wheel = document.getElementById('settingsWheel');
-const menu = document.getElementById('settingsMenu');
-wheel.onclick = () => { menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex'; };
+// Settings wheel toggle
+document.getElementById('settingsWheel').onclick = () => {
+  const menu = document.getElementById('settingsMenu');
+  menu.style.display = menu.style.display==='flex'?'none':'flex';
+};
 
-// Initialize Auth0
+// Initialize everything after window loads
 window.onload = async () => {
+  if(!window.auth0) { console.error("Auth0 SDK not loaded"); return; }
+
   auth0Client = await auth0.createAuth0Client({
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
     client_id: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
@@ -151,72 +85,63 @@ window.onload = async () => {
   await loadClubs();
 };
 
-// Update Auth0 UI
-async function updateUI() {
-  const isAuthenticated = await auth0Client.isAuthenticated();
+// Update login/logout/admin UI
+async function updateUI(){
   const authDiv = document.getElementById("authMenu");
-  authDiv.innerHTML = "";
+  authDiv.innerHTML="";
+  const isAuth = await auth0Client.isAuthenticated();
 
-  if (isAuthenticated) {
+  if(isAuth){
     user = await auth0Client.getUser();
-    const img = document.createElement("img");
-    img.src = user.picture;
-    authDiv.appendChild(img);
+    const img = document.createElement("img"); img.src=user.picture; authDiv.appendChild(img);
 
-    const logoutBtn = document.createElement("button");
-    logoutBtn.innerText = "Logout";
-    logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.origin });
-    authDiv.appendChild(logoutBtn);
+    const logoutBtn=document.createElement("button"); logoutBtn.innerText="Logout";
+    logoutBtn.onclick=()=>auth0Client.logout({returnTo:window.location.origin}); authDiv.appendChild(logoutBtn);
 
-    if (admins.includes(user.email)) {
-      const addBtn = document.createElement("button");
-      addBtn.innerText = "➕ Add Club";
-      addBtn.onclick = async () => {
-        const name = prompt("Club Name:");
-        if (!name) return;
-        const desc = prompt("Description:");
-        const { error } = await supabaseClient.from("clubs").insert([{ name, description: desc }]);
-        if(error) alert("Error: "+error.message); else { alert("Club added!"); loadClubs(); }
+    if(admins.includes(user.email)){
+      const addBtn=document.createElement("button"); addBtn.innerText="➕ Add Club";
+      addBtn.onclick=async()=>{
+        const name=prompt("Club Name:"); if(!name) return;
+        const desc=prompt("Description:");
+        const {error}=await supabaseClient.from("clubs").insert([{name,description:desc}]);
+        if(error) alert("Error:"+error.message); else { alert("Club added!"); loadClubs(); }
       };
       authDiv.appendChild(addBtn);
     }
   } else {
-    const loginBtn = document.createElement("button");
-    loginBtn.innerText = "Login with Google";
-    loginBtn.onclick = () => auth0Client.loginWithRedirect();
-    authDiv.appendChild(loginBtn);
+    const loginBtn=document.createElement("button"); loginBtn.innerText="Login with Google";
+    loginBtn.onclick=()=>auth0Client.loginWithRedirect(); authDiv.appendChild(loginBtn);
   }
 }
 
 // Background changer
-function changeBackground(value){
-  switch(value){
-    case "default": document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)"; break;
-    case "greenorange": document.body.style.background="linear-gradient(135deg,#00b09b,#96c93d)"; break;
-    case "bluepink": document.body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
-    case "sunset": document.body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
-    case "forest": document.body.style.background="linear-gradient(135deg,#134e5e,#71b280)"; break;
-    case "sunrise": document.body.style.background="linear-gradient(135deg,#ff512f,#dd2476)"; break;
-    case "ocean": document.body.style.background="linear-gradient(135deg,#2E8BC0,#B1D4E0)"; break;
+function changeBackground(val){
+  switch(val){
+    case"default":document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)";break;
+    case"greenorange":document.body.style.background="linear-gradient(135deg,#00b09b,#96c93d)";break;
+    case"bluepink":document.body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)";break;
+    case"sunset":document.body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)";break;
+    case"forest":document.body.style.background="linear-gradient(135deg,#134e5e,#71b280)";break;
+    case"sunrise":document.body.style.background="linear-gradient(135deg,#ff512f,#dd2476)";break;
+    case"ocean":document.body.style.background="linear-gradient(135deg,#2E8BC0,#B1D4E0)";break;
   }
-  localStorage.setItem("bgChoice", value);
+  localStorage.setItem("bgChoice",val);
 }
-changeBackground(localStorage.getItem("bgChoice") || "default");
+changeBackground(localStorage.getItem("bgChoice")||"default");
 
 // Load clubs
-async function loadClubs() {
-  const grid = document.querySelector(".clubs-grid");
-  if (!grid) return;
-  grid.innerHTML = "";
-  const { data: clubs, error } = await supabaseClient.from("clubs").select("*");
+async function loadClubs(){
+  const grid=document.querySelector(".clubs-grid");
+  if(!grid) return;
+  grid.innerHTML="";
+  const {data:clubs,error}=await supabaseClient.from("clubs").select("*");
   if(error){ grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; console.error(error); return; }
-  if(!clubs || clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
+  if(!clubs||clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
 
   clubs.forEach(club=>{
     if(!club.name) return;
-    const div = document.createElement("div");
-    div.className="club-folder";
-    div.innerHTML = `<div class="club-header"><h2>${club.name}</h2>${club.description ? `<p class="club-description">${club.description}</p>` : ""}</div>`;
+    const div=document.createElement("div"); div.className="club-folder";
+    div.innerHTML=`<div class="club-header"><h2>${club.name}</h2>${club.description?`<p class="club-description">${club.description}</p>`:""}</div>`;
     grid.appendChild(div);
   });
 }
