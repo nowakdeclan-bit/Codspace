@@ -1,16 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Club Management</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    transition: background 0.5s;
+  }
+  .auth-btn {
+    margin: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #444;
+    color: white;
+  }
+  #authMenu {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+  }
+  .bg-selector {
+    margin: 10px;
+  }
+  .bg-selector button {
+    margin-right: 5px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  .container {
+    padding: 20px;
+  }
+  .clubs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .club-folder {
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 6px;
+  }
+  .club-header h2 {
+    margin: 0;
+  }
+  .club-description {
+    font-size: 14px;
+  }
+  img {
+    width: 40px;
+    border-radius: 50%;
+  }
+</style>
 </head>
 <body>
 
-<h1>Hello</h1>
+<div id="authMenu"></div>
+
+<div class="bg-selector">
+  <button onclick="changeBackground('default')">Purple</button>
+  <button onclick="changeBackground('greenorange')">Green/Orange</button>
+  <button onclick="changeBackground('bluepink')">Blue/Pink</button>
+  <button onclick="changeBackground('sunset')">Sunset</button>
+</div>
+
+<div class="container">
+  <h1>🎓 School Clubs</h1>
+  <div class="clubs-grid"></div>
+</div>
+
+<!-- Auth0 and Supabase CDNs -->
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-document.body.style.background = "red";
-document.body.innerHTML += "<p style='color:white'>JS WORKS</p>";
-</script>
+let auth0Client;
+let user = null;
 
+const admins = ["nowakdeclan@gmail.com"];
+const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgNnyyQa_5j9PCMv7YUdwZm-Z3FaHP1k";
+
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function initAuth() {
+  auth0Client = await auth0.createAuth0Client({
+    domain: "dev-7zkwepz701chykhp.us.auth0.com",
+    client_id: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
+    cacheLocation: "localstorage",
+    useRefreshTokens: true
+  });
+
+  if (window.location.search.includes("code=")) {
+    await auth0Client.handleRedirectCallback();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  await updateUI();
+  await loadClubs();
+}
+
+async function updateUI() {
+  const isAuthenticated = await auth0Client.isAuthenticated();
+  const menu = document.getElementById("authMenu");
+  menu.innerHTML = "";
+
+  if (isAuthenticated) {
+    user = await auth0Client.getUser();
+
+    const img = document.createElement("img");
+    img.src = user.picture;
+    menu.appendChild(img);
+
+    const logoutBtn = document.createElement("button");
+    logoutBtn.innerText = "Logout";
+    logoutBtn.className = "auth-btn";
+    logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.origin });
+    menu.appendChild(logoutBtn);
+
+    if (admins.includes(user.email)) {
+      const addBtn = document.createElement("button");
+      addBtn.innerText = "➕ Add Club";
+      addBtn.className = "auth-btn";
+      addBtn.onclick = async () => {
+        const name = prompt("Club Name:");
+        if (!name) return;
+        const desc = prompt("Description:");
+
+        const { error } = await supabaseClient.from("clubs").insert([{ name, description: desc }]);
+        if (error) {
+          alert("Error: " + error.message);
+        } else {
+          alert("Club added!");
+          loadClubs();
+        }
+      };
+      menu.appendChild(addBtn);
+    }
+
+  } else {
+    const loginBtn = document.createElement("button");
+    loginBtn.innerText = "Login with Google";
+    loginBtn.className = "auth-btn";
+    loginBtn.onclick = () => auth0Client.loginWithRedirect();
+    menu.appendChild(loginBtn);
+  }
+}
+
+function changeBackground(value) {
+  switch (value) {
+    case "default": document.body.style.background = "linear-gradient(135deg,#667eea,#764ba2)"; break;
+    case "greenorange": document.body.style.background = "linear-gradient(135deg,#00b09b,#96c93d)"; break;
+    case "bluepink": document.body.style.background = "linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
+    case "sunset": document.body.style.background = "linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
+  }
+  localStorage.setItem("bgChoice", value);
+}
+changeBackground(localStorage.getItem("bgChoice") || "default");
+
+async function loadClubs() {
+  const grid = document.querySelector(".clubs-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  const { data: clubs, error } = await supabaseClient.from("clubs").select("*");
+  if (error) {
+    grid.innerHTML = "<p style='color:white;text-align:center;'>Error loading clubs.</p>";
+    console.error(error);
+    return;
+  }
+  if (!clubs || clubs.length === 0) {
+    grid.innerHTML = "<p style='color:white;text-align:center;'>No clubs yet.</p>";
+    return;
+  }
+
+  clubs.forEach(club => {
+    if (!club.name) return;
+    const div = document.createElement("div");
+    div.className = "club-folder";
+    div.innerHTML = `
+      <div class="club-header">
+        <h2>${club.name}</h2>
+        ${club.description ? `<p class="club-description">${club.description}</p>` : ""}
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+window.onload = initAuth;
+</script>
 </body>
 </html>
