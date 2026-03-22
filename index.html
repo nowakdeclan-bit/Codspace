@@ -1,4 +1,19 @@
 <script>
+  window.onerror = function(message, source, lineno, colno, error) {
+  const div = document.createElement("div");
+  div.style.position = "fixed";
+  div.style.bottom = "0";
+  div.style.left = "0";
+  div.style.width = "100%";
+  div.style.background = "black";
+  div.style.color = "red";
+  div.style.zIndex = "9999";
+  div.style.fontSize = "12px";
+  div.style.padding = "10px";
+  div.innerText = "ERROR: " + message;
+  document.body.appendChild(div);
+};console.log("JS LOADED");
+document.body.style.background = "red";
 let auth0Client;
 let user = null;
 
