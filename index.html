@@ -11,52 +11,72 @@
     color: white;
     transition: background 0.5s;
   }
-  .auth-btn {
-    margin: 5px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: #444;
-    color: white;
-  }
-  #authMenu {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    gap: 10px;
-  }
-  .bg-selector {
-    margin: 10px;
-  }
-  .bg-selector button {
-    margin-right: 5px;
-    padding: 6px 10px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-  }
+
   .container {
     padding: 20px;
   }
+
   .clubs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-top: 20px;
   }
+
   .club-folder {
     background: rgba(0,0,0,0.3);
     padding: 10px;
     border-radius: 6px;
   }
+
   .club-header h2 {
     margin: 0;
   }
+
   .club-description {
     font-size: 14px;
   }
-  img {
+
+  /* Settings wheel */
+  #settingsWheel {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 1000;
+  }
+
+  #settingsWheel svg {
+    width: 100%;
+    height: 100%;
+    fill: white;
+  }
+
+  #settingsMenu {
+    position: fixed;
+    top: 60px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 8px;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+  }
+
+  #settingsMenu button {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background: #444;
+    color: white;
+  }
+
+  #settingsMenu img {
     width: 40px;
     border-radius: 50%;
   }
@@ -64,13 +84,24 @@
 </head>
 <body>
 
-<div id="authMenu"></div>
+<div id="settingsWheel">
+  <!-- Simple gear icon SVG -->
+  <svg viewBox="0 0 24 24">
+    <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7zm7.43-2.07l1.77-1.03-1.5-2.6-1.77 1.03a7.038 7.038 0 0 0-1.6-.93l-.27-1.88H9.74l-.27 1.88c-.57.19-1.11.46-1.6.93L6.1 9.8l-1.5 2.6 1.77 1.03c-.05.33-.08.67-.08 1.03s.03.7.08 1.03l-1.77 1.03 1.5 2.6 1.77-1.03c.49.47 1.03.74 1.6.93l.27 1.88h3.95l.27-1.88c.57-.19 1.11-.46 1.6-.93l1.77 1.03 1.5-2.6-1.77-1.03c.05-.33.08-.67.08-1.03s-.03-.7-.08-1.03z"/>
+  </svg>
+</div>
 
-<div class="bg-selector">
-  <button onclick="changeBackground('default')">Purple</button>
-  <button onclick="changeBackground('greenorange')">Green/Orange</button>
-  <button onclick="changeBackground('bluepink')">Blue/Pink</button>
-  <button onclick="changeBackground('sunset')">Sunset</button>
+<div id="settingsMenu">
+  <div id="authMenu"></div>
+  <div class="bg-selector">
+    <button onclick="changeBackground('default')">Purple</button>
+    <button onclick="changeBackground('greenorange')">Green/Orange</button>
+    <button onclick="changeBackground('bluepink')">Blue/Pink</button>
+    <button onclick="changeBackground('sunset')">Sunset</button>
+    <button onclick="changeBackground('forest')">Forest</button>
+    <button onclick="changeBackground('sunrise')">Sunrise</button>
+    <button onclick="changeBackground('ocean')">Ocean</button>
+  </div>
 </div>
 
 <div class="container">
@@ -92,6 +123,14 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Toggle settings menu
+const wheel = document.getElementById('settingsWheel');
+const menu = document.getElementById('settingsMenu');
+wheel.onclick = () => {
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Initialize Auth0
 async function initAuth() {
   auth0Client = await auth0.createAuth0Client({
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
@@ -109,84 +148,74 @@ async function initAuth() {
   await loadClubs();
 }
 
+// Update Auth0 UI
 async function updateUI() {
   const isAuthenticated = await auth0Client.isAuthenticated();
-  const menu = document.getElementById("authMenu");
-  menu.innerHTML = "";
+  const authDiv = document.getElementById("authMenu");
+  authDiv.innerHTML = "";
 
   if (isAuthenticated) {
     user = await auth0Client.getUser();
 
     const img = document.createElement("img");
     img.src = user.picture;
-    menu.appendChild(img);
+    authDiv.appendChild(img);
 
     const logoutBtn = document.createElement("button");
     logoutBtn.innerText = "Logout";
-    logoutBtn.className = "auth-btn";
     logoutBtn.onclick = () => auth0Client.logout({ returnTo: window.location.origin });
-    menu.appendChild(logoutBtn);
+    authDiv.appendChild(logoutBtn);
 
     if (admins.includes(user.email)) {
       const addBtn = document.createElement("button");
       addBtn.innerText = "➕ Add Club";
-      addBtn.className = "auth-btn";
       addBtn.onclick = async () => {
         const name = prompt("Club Name:");
         if (!name) return;
         const desc = prompt("Description:");
-
         const { error } = await supabaseClient.from("clubs").insert([{ name, description: desc }]);
-        if (error) {
-          alert("Error: " + error.message);
-        } else {
-          alert("Club added!");
-          loadClubs();
-        }
+        if(error) alert("Error: "+error.message); else { alert("Club added!"); loadClubs(); }
       };
-      menu.appendChild(addBtn);
+      authDiv.appendChild(addBtn);
     }
 
   } else {
     const loginBtn = document.createElement("button");
     loginBtn.innerText = "Login with Google";
-    loginBtn.className = "auth-btn";
     loginBtn.onclick = () => auth0Client.loginWithRedirect();
-    menu.appendChild(loginBtn);
+    authDiv.appendChild(loginBtn);
   }
 }
 
-function changeBackground(value) {
-  switch (value) {
-    case "default": document.body.style.background = "linear-gradient(135deg,#667eea,#764ba2)"; break;
-    case "greenorange": document.body.style.background = "linear-gradient(135deg,#00b09b,#96c93d)"; break;
-    case "bluepink": document.body.style.background = "linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
-    case "sunset": document.body.style.background = "linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
+// Background changer
+function changeBackground(value){
+  switch(value){
+    case "default": document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)"; break;
+    case "greenorange": document.body.style.background="linear-gradient(135deg,#00b09b,#96c93d)"; break;
+    case "bluepink": document.body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)"; break;
+    case "sunset": document.body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)"; break;
+    case "forest": document.body.style.background="linear-gradient(135deg,#134e5e,#71b280)"; break;
+    case "sunrise": document.body.style.background="linear-gradient(135deg,#ff512f,#dd2476)"; break;
+    case "ocean": document.body.style.background="linear-gradient(135deg,#2E8BC0,#B1D4E0)"; break;
   }
   localStorage.setItem("bgChoice", value);
 }
 changeBackground(localStorage.getItem("bgChoice") || "default");
 
+// Load clubs from Supabase
 async function loadClubs() {
   const grid = document.querySelector(".clubs-grid");
   if (!grid) return;
   grid.innerHTML = "";
 
   const { data: clubs, error } = await supabaseClient.from("clubs").select("*");
-  if (error) {
-    grid.innerHTML = "<p style='color:white;text-align:center;'>Error loading clubs.</p>";
-    console.error(error);
-    return;
-  }
-  if (!clubs || clubs.length === 0) {
-    grid.innerHTML = "<p style='color:white;text-align:center;'>No clubs yet.</p>";
-    return;
-  }
+  if(error){ grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; console.error(error); return; }
+  if(!clubs || clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
 
-  clubs.forEach(club => {
-    if (!club.name) return;
+  clubs.forEach(club=>{
+    if(!club.name) return;
     const div = document.createElement("div");
-    div.className = "club-folder";
+    div.className="club-folder";
     div.innerHTML = `
       <div class="club-header">
         <h2>${club.name}</h2>
