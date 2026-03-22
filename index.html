@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>School Club Management</title>
+
 <style>
 body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.5s;}
 .container{padding:20px;}
@@ -11,14 +12,42 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
 .club-folder{background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;}
 .club-header h2{margin:0;}
 .club-description{font-size:14px;}
+
 #settingsWheel{position:fixed;top:10px;right:10px;width:40px;height:40px;cursor:pointer;z-index:1000;}
 #settingsWheel svg{width:100%;height:100%;fill:white;}
-#settingsMenu{position:fixed;top:60px;right:10px;background:rgba(0,0,0,0.85);border-radius:8px;padding:10px;display:none;flex-direction:column;gap:10px;z-index:1000;min-width:150px;}
-#settingsMenu button{padding:6px 10px;border-radius:4px;border:none;cursor:pointer;background:#444;color:white;}
-#settingsMenu img{width:40px;border-radius:50%;}
+
+#settingsMenu{
+  position:fixed;
+  top:60px;
+  right:10px;
+  background:rgba(0,0,0,0.85);
+  border-radius:8px;
+  padding:10px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  z-index:1000;
+  min-width:150px;
+}
+
+#settingsMenu button{
+  padding:6px 10px;
+  border-radius:4px;
+  border:none;
+  cursor:pointer;
+  background:#444;
+  color:white;
+}
+
+#settingsMenu img{
+  width:40px;
+  border-radius:50%;
+}
+
 .bg-selector button{margin-bottom:4px;width:100%;}
 </style>
 </head>
+
 <body>
 
 <!-- Settings Wheel -->
@@ -31,6 +60,7 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
 <!-- Settings Menu -->
 <div id="settingsMenu">
 <div id="authMenu"></div>
+
 <div class="bg-selector">
 <button onclick="changeBackground('default')">Purple</button>
 <button onclick="changeBackground('greenorange')">Green/Orange</button>
@@ -55,28 +85,29 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
 let auth0Client;
 let user = null;
 const admins = ["nowakdeclan@gmail.com"];
+
 const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgNnyyQa_5j9PCMv7YUdwZm-Z3FaHP1k";
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Settings wheel toggle
+// Toggle settings menu
 document.getElementById('settingsWheel').onclick = () => {
   const menu = document.getElementById('settingsMenu');
-  menu.style.display = menu.style.display==='flex'?'none':'flex';
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
 };
 
-// Initialize everything after window loads
 window.onload = async () => {
-  if(!window.auth0) { console.error("Auth0 SDK not loaded"); return; }
-
   auth0Client = await auth0.createAuth0Client({
-    domain: "I2BpaqWwKIgwogQYpDDA0qiMBPgeXw4e",
-    client_id: "sFJNJmf0HSXehaKMhHfw9WLAnN90P3Bf",
+    domain: "dev-7zkwepz701chykhp.us.auth0.com",
+    client_id: "I2BpaqWwKIgwogQYpDDA0qiMBPgeXw4e",
+    authorizationParams: {
+      redirect_uri: window.location.origin
+    },
     cacheLocation: "localstorage",
     useRefreshTokens: true
   });
 
-  if(window.location.search.includes("code=")){
+  if (window.location.search.includes("code=")) {
     await auth0Client.handleRedirectCallback();
     window.history.replaceState({}, document.title, window.location.pathname);
   }
@@ -85,66 +116,103 @@ window.onload = async () => {
   await loadClubs();
 };
 
-// Update login/logout/admin UI
 async function updateUI(){
   const authDiv = document.getElementById("authMenu");
-  authDiv.innerHTML="";
+  authDiv.innerHTML = "";
+
   const isAuth = await auth0Client.isAuthenticated();
 
   if(isAuth){
     user = await auth0Client.getUser();
-    const img = document.createElement("img"); img.src=user.picture; authDiv.appendChild(img);
 
-    const logoutBtn=document.createElement("button"); logoutBtn.innerText="Logout";
-    logoutBtn.onclick=()=>auth0Client.logout({returnTo:window.location.origin}); authDiv.appendChild(logoutBtn);
+    const img = document.createElement("img");
+    img.src = user.picture;
+    authDiv.appendChild(img);
+
+    const logoutBtn = document.createElement("button");
+    logoutBtn.innerText = "Logout";
+    logoutBtn.onclick = () => auth0Client.logout({ logoutParams: { returnTo: window.location.origin }});
+    authDiv.appendChild(logoutBtn);
 
     if(admins.includes(user.email)){
-      const addBtn=document.createElement("button"); addBtn.innerText="➕ Add Club";
-      addBtn.onclick=async()=>{
-        const name=prompt("Club Name:"); if(!name) return;
-        const desc=prompt("Description:");
-        const {error}=await supabaseClient.from("clubs").insert([{name,description:desc}]);
-        if(error) alert("Error:"+error.message); else { alert("Club added!"); loadClubs(); }
+      const addBtn = document.createElement("button");
+      addBtn.innerText = "➕ Add Club";
+
+      addBtn.onclick = async () => {
+        const name = prompt("Club Name:");
+        if(!name) return;
+        const desc = prompt("Description:");
+
+        const { error } = await supabaseClient
+          .from("clubs")
+          .insert([{ name, description: desc }]);
+
+        if(error) alert("Error: " + error.message);
+        else {
+          alert("Club added!");
+          loadClubs();
+        }
       };
+
       authDiv.appendChild(addBtn);
     }
+
   } else {
-    const loginBtn=document.createElement("button"); loginBtn.innerText="Login with Google";
-    loginBtn.onclick=()=>auth0Client.loginWithRedirect(); authDiv.appendChild(loginBtn);
+    const loginBtn = document.createElement("button");
+    loginBtn.innerText = "Login with Google";
+    loginBtn.onclick = () => auth0Client.loginWithRedirect();
+    authDiv.appendChild(loginBtn);
   }
 }
 
-// Background changer
+// Backgrounds
 function changeBackground(val){
-  switch(val){
-    case"default":document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)";break;
-    case"greenorange":document.body.style.background="linear-gradient(135deg,#00b09b,#96c93d)";break;
-    case"bluepink":document.body.style.background="linear-gradient(135deg,#2193b0,#6dd5ed)";break;
-    case"sunset":document.body.style.background="linear-gradient(135deg,#ff7e5f,#feb47b)";break;
-    case"forest":document.body.style.background="linear-gradient(135deg,#134e5e,#71b280)";break;
-    case"sunrise":document.body.style.background="linear-gradient(135deg,#ff512f,#dd2476)";break;
-    case"ocean":document.body.style.background="linear-gradient(135deg,#2E8BC0,#B1D4E0)";break;
-  }
-  localStorage.setItem("bgChoice",val);
+  const map = {
+    default: "linear-gradient(135deg,#667eea,#764ba2)",
+    greenorange: "linear-gradient(135deg,#00b09b,#96c93d)",
+    bluepink: "linear-gradient(135deg,#2193b0,#6dd5ed)",
+    sunset: "linear-gradient(135deg,#ff7e5f,#feb47b)",
+    forest: "linear-gradient(135deg,#134e5e,#71b280)",
+    sunrise: "linear-gradient(135deg,#ff512f,#dd2476)",
+    ocean: "linear-gradient(135deg,#2E8BC0,#B1D4E0)"
+  };
+
+  document.body.style.background = map[val];
+  localStorage.setItem("bgChoice", val);
 }
-changeBackground(localStorage.getItem("bgChoice")||"default");
+
+changeBackground(localStorage.getItem("bgChoice") || "default");
 
 // Load clubs
 async function loadClubs(){
-  const grid=document.querySelector(".clubs-grid");
-  if(!grid) return;
-  grid.innerHTML="";
-  const {data:clubs,error}=await supabaseClient.from("clubs").select("*");
-  if(error){ grid.innerHTML="<p style='color:white;text-align:center;'>Error loading clubs.</p>"; console.error(error); return; }
-  if(!clubs||clubs.length===0){ grid.innerHTML="<p style='color:white;text-align:center;'>No clubs to display yet.</p>"; return; }
+  const grid = document.querySelector(".clubs-grid");
+  grid.innerHTML = "";
 
-  clubs.forEach(club=>{
-    if(!club.name) return;
-    const div=document.createElement("div"); div.className="club-folder";
-    div.innerHTML=`<div class="club-header"><h2>${club.name}</h2>${club.description?`<p class="club-description">${club.description}</p>`:""}</div>`;
+  const { data, error } = await supabaseClient.from("clubs").select("*");
+
+  if(error){
+    grid.innerHTML = "<p>Error loading clubs.</p>";
+    return;
+  }
+
+  if(!data.length){
+    grid.innerHTML = "<p>No clubs yet.</p>";
+    return;
+  }
+
+  data.forEach(club => {
+    const div = document.createElement("div");
+    div.className = "club-folder";
+    div.innerHTML = `
+      <div class="club-header">
+        <h2>${club.name}</h2>
+        ${club.description ? `<p>${club.description}</p>` : ""}
+      </div>
+    `;
     grid.appendChild(div);
   });
 }
 </script>
+
 </body>
 </html>
