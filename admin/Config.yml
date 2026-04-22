@@ -1,1 +1,19 @@
+backend:
+  name: github
+  repo: your-github-username/your-repo-name # 👈 CHANGE THIS
+  branch: main
+  base_url: https://github-proxy.com # 👈 This helps you log in without Netlify
+  auth_endpoint: api/auth
+
+media_folder: "images" 
+public_folder: "/images"
+
+collections:
+  - name: "updates"
+    label: "Club Updates"
+    folder: "updates" # Where your posts will be saved
+    create: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Content", name: "body", widget: "markdown" }
 
