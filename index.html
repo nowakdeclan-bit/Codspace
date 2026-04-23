@@ -13,9 +13,61 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
 .club-header h2{margin:0;}
 .club-description{font-size:14px;}
 
-#settingsWheel{position:fixed;top:10px;right:10px;width:40px;height:40px;cursor:pointer;z-index:1000;}
+/* Settings Wheel + Swatches */
+#settingsWheel{
+  position:fixed;
+  top:10px;
+  right:10px;
+  width:40px;
+  height:40px;
+  cursor:pointer;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 #settingsWheel svg{width:100%;height:100%;fill:white;}
 
+/* Swatches container is centered on the wheel and swatches are positioned relative to that center */
+#bgSwatches{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:0;
+  height:0;
+  transform:translate(-50%,-50%);
+  pointer-events:none; /* enable per-swatch pointer-events */
+}
+.swatch{
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:8px;
+  border:2px solid rgba(255,255,255,0.15);
+  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+  cursor:pointer;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0.9);
+  transition:opacity 0.15s ease, transform 0.15s ease;
+  pointer-events:auto;
+}
+
+/* Positions around the center (translate after centering with 50% offsets) */
+.swatch.s1 { transform: translate(-50%,-50%) translate(0,-66px) scale(0.9); }    /* top */
+.swatch.s2 { transform: translate(-50%,-50%) translate(46px,-36px) scale(0.9); }  /* top-right */
+.swatch.s3 { transform: translate(-50%,-50%) translate(46px,36px) scale(0.9); }   /* bottom-right */
+.swatch.s4 { transform: translate(-50%,-50%) translate(0,66px) scale(0.9); }      /* bottom */
+.swatch.s5 { transform: translate(-50%,-50%) translate(-46px,36px) scale(0.9); }  /* bottom-left */
+.swatch.s6 { transform: translate(-50%,-50%) translate(-46px,-36px) scale(0.9); } /* top-left */
+.swatch.s7 { transform: translate(-50%,-50%) translate(80px,0) scale(0.9); }      /* far right (optional) */
+
+/* When open, show swatches */
+#settingsWheel.open #bgSwatches .swatch{
+  opacity:1;
+  transform: translate(-50%,-50%) translate(0,-66px) scale(1); /* will be overridden by per-swatch transform in inline styles / classes */
+}
+
+/* Settings menu (unchanged except removed bg-selector) */
 #settingsMenu{
   position:fixed;
   top:60px;
@@ -44,32 +96,26 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
   border-radius:50%;
 }
 
-.bg-selector button{margin-bottom:4px;width:100%;}
+/* Keep existing bg selector styling removed from markup; this preserves layout for auth controls */
 </style>
 </head>
 
 <body>
 
 <!-- Settings Wheel -->
-<div id="settingsWheel">
-<svg viewBox="0 0 24 24">
-<path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.65l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a6.964 6.964 0 0 0-1.7-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.38 2.65c-.63.25-1.22.58-1.7.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46c-.14.24-.1.55.12.65l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.65l2 3.46c.14.24.43.34.61.22l2.49-1c.48.4 1.07.73 1.7.98l.38 2.65c.05.28.28.48.55.48h4c.27 0 .5-.2.55-.48l.38-2.65c.63-.25 1.22-.58 1.7-.98l2.49 1c.18.12.47.02.61-.22l2-3.46a.5.5 0 0 0-.12-.65l-2.11-1.65zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
-</svg>
+<div id="settingsWheel" title="Settings">
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.65l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a6.964 6.964 0 0 0-1.7-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.38 2.65a6.964 6.964 0 0 0-1.7.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46a.5.5 0 0 0 .12.65L4.57 11c-.04.32-.07.65-.07.98s.03.66.07.98L2.46 14.61a.5.5 0 0 0-.12.65l2 3.46c.14.24.44.34.7.22l2.49-1c.53.4 1.1.73 1.7.98l.38 2.65c.05.25.27.42.49.42h4c.22 0 .44-.17.49-.42l.38-2.65c.6-.25 1.17-.58 1.7-.98l2.49 1c.26.12.56.02.7-.22l2-3.46a.5.5 0 0 0-.12-.65L19.43 12.98zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+  </svg>
+
+  <!-- Swatches will be injected here -->
+  <div id="bgSwatches" aria-hidden="true"></div>
 </div>
 
 <!-- Settings Menu -->
 <div id="settingsMenu">
-<div id="authMenu"></div>
-
-<div class="bg-selector">
-<button onclick="changeBackground('default')">Purple</button>
-<button onclick="changeBackground('greenorange')">Green/Orange</button>
-<button onclick="changeBackground('bluepink')">Blue/Pink</button>
-<button onclick="changeBackground('sunset')">Sunset</button>
-<button onclick="changeBackground('forest')">Forest</button>
-<button onclick="changeBackground('sunrise')">Sunrise</button>
-<button onclick="changeBackground('ocean')">Ocean</button>
-</div>
+  <div id="authMenu"></div>
+  <!-- Backgrounds moved to wheel swatches -->
 </div>
 
 <div class="container">
@@ -87,16 +133,31 @@ let user = null;
 const admins = ["nowakdeclan@gmail.com"];
 
 const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgNnyyQa_5j9PCMv7YUdwZm-Z3FaHP1k";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGCdOhgN[...]";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Toggle settings menu
+// Toggle settings menu & swatches
 document.getElementById('settingsWheel').onclick = () => {
   const menu = document.getElementById('settingsMenu');
-  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  const wheel = document.getElementById('settingsWheel');
+  const swatches = document.getElementById('bgSwatches');
+
+  const isOpen = menu.style.display === 'flex';
+  menu.style.display = isOpen ? 'none' : 'flex';
+  // toggle swatches visibility and class
+  if(isOpen){
+    wheel.classList.remove('open');
+    swatches.setAttribute('aria-hidden', 'true');
+  } else {
+    wheel.classList.add('open');
+    swatches.setAttribute('aria-hidden', 'false');
+  }
 };
 
 window.onload = async () => {
+  // build swatches into the wheel
+  buildBgSwatches();
+
   auth0Client = await auth0.createAuth0Client({
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
     client_id: "I2BpaqWwKIgwogQYpDDA0qiMBPgeXw4e",
@@ -165,23 +226,54 @@ async function updateUI(){
   }
 }
 
-// Backgrounds
+// Backgrounds map (same gradients used by changeBackground)
+const bgMap = {
+  default: "linear-gradient(135deg,#667eea,#764ba2)",
+  greenorange: "linear-gradient(135deg,#00b09b,#96c93d)",
+  bluepink: "linear-gradient(135deg,#2193b0,#6dd5ed)",
+  sunset: "linear-gradient(135deg,#ff7e5f,#feb47b)",
+  forest: "linear-gradient(135deg,#134e5e,#71b280)",
+  sunrise: "linear-gradient(135deg,#ff512f,#dd2476)",
+  ocean: "linear-gradient(135deg,#2E8BC0,#B1D4E0)"
+};
+
 function changeBackground(val){
-  const map = {
-    default: "linear-gradient(135deg,#667eea,#764ba2)",
-    greenorange: "linear-gradient(135deg,#00b09b,#96c93d)",
-    bluepink: "linear-gradient(135deg,#2193b0,#6dd5ed)",
-    sunset: "linear-gradient(135deg,#ff7e5f,#feb47b)",
-    forest: "linear-gradient(135deg,#134e5e,#71b280)",
-    sunrise: "linear-gradient(135deg,#ff512f,#dd2476)",
-    ocean: "linear-gradient(135deg,#2E8BC0,#B1D4E0)"
-  };
+  const map = bgMap;
 
   document.body.style.background = map[val];
   localStorage.setItem("bgChoice", val);
 }
 
 changeBackground(localStorage.getItem("bgChoice") || "default");
+
+// Create swatches around the wheel
+function buildBgSwatches(){
+  const swatchesContainer = document.getElementById('bgSwatches');
+  swatchesContainer.innerHTML = ''; // clear
+
+  const keys = Object.keys(bgMap);
+  // desired positions: 7 swatches approximate; use s1..s7 CSS classes
+  keys.forEach((key, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'swatch s' + (idx + 1);
+    btn.title = key;
+    btn.setAttribute('aria-label', 'Background ' + key);
+    btn.style.backgroundImage = bgMap[key];
+    btn.onclick = (e) => {
+      e.stopPropagation(); // don't toggle wheel/menu when clicking a swatch
+      changeBackground(key);
+      // optionally close the menu after selection
+      document.getElementById('settingsMenu').style.display = 'none';
+      const wheel = document.getElementById('settingsWheel');
+      wheel.classList.remove('open');
+      swatchesContainer.setAttribute('aria-hidden', 'true');
+    };
+    swatchesContainer.appendChild(btn);
+  });
+
+  // start hidden
+  swatchesContainer.setAttribute('aria-hidden', 'true');
+}
 
 // Load clubs
 async function loadClubs(){
@@ -213,29 +305,30 @@ async function loadClubs(){
   });
 }
 </script>
-<script>
- 
 
+<script>
+  // Legacy/alternate club loader (kept for compatibility, but note it uses #grid which doesn't exist;
+  // if you want to use it, change #grid to .clubs-grid or remove this block)
   const grid = document.getElementById("grid");
 
-  fetch('clubs.json')
-    .then(response => response.json())
-    .then(data => {
-      
-      data.forEach(club => {
-        const div = document.createElement("div");
-        div.className = "club-folder";
-        div.innerHTML = `
-          <div class="club-header">
-            <h2>${club.name}</h2>
-            ${club.description ? `<p>${club.description}</p>` : ""}
-          </div>
-        `;
-        grid.appendChild(div);
-      });
-      
-    })
-    .catch(error => console.error("Error loading clubs:", error));
+  if(grid){
+    fetch('clubs.json')
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(club => {
+          const div = document.createElement("div");
+          div.className = "club-folder";
+          div.innerHTML = `
+            <div class="club-header">
+              <h2>${club.name}</h2>
+              ${club.description ? `<p>${club.description}</p>` : ""}
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+      })
+      .catch(error => console.error("Error loading clubs:", error));
+  }
 </script>
 
 </body>
