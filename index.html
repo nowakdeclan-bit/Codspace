@@ -213,6 +213,30 @@ async function loadClubs(){
   });
 }
 </script>
+<script>
+ 
+
+  const grid = document.getElementById("grid");
+
+  fetch('clubs.json')
+    .then(response => response.json())
+    .then(data => {
+      
+      data.forEach(club => {
+        const div = document.createElement("div");
+        div.className = "club-folder";
+        div.innerHTML = `
+          <div class="club-header">
+            <h2>${club.name}</h2>
+            ${club.description ? `<p>${club.description}</p>` : ""}
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+      
+    })
+    .catch(error => console.error("Error loading clubs:", error));
+</script>
 
 </body>
 </html>
