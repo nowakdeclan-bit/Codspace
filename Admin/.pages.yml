@@ -1,0 +1,13 @@
+content:
+  - name: clubs_file
+    label: "Club List"
+    type: file
+    path: clubs.json
+    format: json
+    fields:
+      - name: name
+        label: "Club Name"
+        type: string
+      - name: description
+        label: "Description"
+        type: string
