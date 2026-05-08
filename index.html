@@ -110,7 +110,7 @@ body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.
 <div id="settingsWheel" title="Settings">
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
     <!-- Stable gear path -->
-    <path d="M19.14 12.94a7.14 7.14 0 0 0 0-1.88l2.03-1.58a0.5 0.5 0 0 0 .12-.65l-1.92-3.33a0.5 0.5 0 0 0-.6-.22l-2.39 1a7.41 7.41 0 0 0-1.62-.94l-.79-2.96A0.5 0.5 0 0 0 14.33 2h-4.66a0.5 0.5 0 0 0-.47.34l-.79 2.96a7.41 7.41 0 0 0-1.62.94l-2.39-1a0.5 0.5 0 0 0-.6.22L2.71 8.83a0.5 0.5 0 0 0 .12.65L4.86 11.06a7.14 7.14 0 0 0 0 1.88L2.83 14.52a0.5 0.5 0 0 0-.12.65l1.92 3.33a0.5 0.5 0 0 0 .6.22l2.39-1c.5.36 1.06.66 1.62.94l.79 2.96a0.5 0.5 0 0 0 .47.34h4.66a0.5 0.5 0 0 0 .47-.34l.79-2.96c.56-.28 1.12-.58 1.62-.94l2.39 1a0.5 0.5 0 0 0 .6-.22l1.92-3.33a0.5 0.5 0 0 0-.12-.65l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5z"/>
+    <path d="M19.14 12.94a7.14 7.14 0 0 0 0-1.88l2.03-1.58a0.5 0.5 0 0 0 .12-.65l-1.92-3.33a0.5 0.5 0 0 0-.6-.22l-2.39 1a7.41 7.41 0 0 0-1.62-.94l-.79-2.96A0.5 0.5 0 0 0 14.33 2h-4.66a0.5 0.5 0 0 0-.4[...]"/>
   </svg>
 
   <!-- Swatches will be injected here -->
@@ -141,27 +141,32 @@ const supabaseUrl = "https://ebopabdywvtgnyzzncwm.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib3BhYmR5d3Z0Z255enpuY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTE3NzIsImV4cCI6MjA4OTY4Nzc3Mn0.8V8GpFpGC[...]";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Toggle settings menu & swatches
-document.getElementById('settingsWheel').onclick = () => {
-  const menu = document.getElementById('settingsMenu');
-  const wheel = document.getElementById('settingsWheel');
-  const swatches = document.getElementById('bgSwatches');
+// Toggle settings menu & swatches - moved inside window.onload
+function setupSettingsWheel(){
+  document.getElementById('settingsWheel').onclick = () => {
+    const menu = document.getElementById('settingsMenu');
+    const wheel = document.getElementById('settingsWheel');
+    const swatches = document.getElementById('bgSwatches');
 
-  const isOpen = menu.style.display === 'flex';
-  menu.style.display = isOpen ? 'none' : 'flex';
-  // toggle swatches visibility and class
-  if(isOpen){
-    wheel.classList.remove('open');
-    swatches.setAttribute('aria-hidden', 'true');
-  } else {
-    wheel.classList.add('open');
-    swatches.setAttribute('aria-hidden', 'false');
-  }
-};
+    const isOpen = menu.style.display === 'flex';
+    menu.style.display = isOpen ? 'none' : 'flex';
+    // toggle swatches visibility and class
+    if(isOpen){
+      wheel.classList.remove('open');
+      swatches.setAttribute('aria-hidden', 'true');
+    } else {
+      wheel.classList.add('open');
+      swatches.setAttribute('aria-hidden', 'false');
+    }
+  };
+}
 
 window.onload = async () => {
   // build swatches into the wheel
   buildBgSwatches();
+  
+  // NOW setup the click handler after swatches are built
+  setupSettingsWheel();
 
   auth0Client = await auth0.createAuth0Client({
     domain: "dev-7zkwepz701chykhp.us.auth0.com",
