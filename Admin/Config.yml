@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: nowakdeclan-bit/codespace
+  repo: nowakdeclan-bit/Codspace
   branch: main
 
 media_folder: "images"
