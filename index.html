@@ -1,109 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>School Club Management</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Club Management</title>
 
-<style>
-body {margin:0;font-family:Arial,sans-serif;color:white;transition:background 0.5s;}
-.container{padding:20px;}
-.clubs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-top:20px;}
-.club-folder{background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;}
-.club-header h2{margin:0;}
-.club-description{font-size:14px;}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      transition: background 0.5s;
+      background: #1a1a1a;
+    }
 
-/* Settings Wheel + Swatches */
-#settingsWheel{
-  position:fixed;
-  top:10px;
-  right:10px;
-  width:40px;
-  height:40px;
-  cursor:pointer;
-  z-index:1000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#settingsWheel svg{width:100%;height:100%;fill:white;}
+    .container {
+      padding: 20px;
+    }
 
-/* Swatches container is centered on the wheel and swatches are positioned relative to that center */
-#bgSwatches{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:0;
-  height:0;
-  transform:translate(-50%,-50%);
-  pointer-events:none; /* enable per-swatch pointer-events */
-}
-.swatch{
-  position:absolute;
-  width:36px;
-  height:36px;
-  border-radius:8px;
-  border:2px solid rgba(255,255,255,0.15);
-  box-shadow:0 2px 6px rgba(0,0,0,0.35);
-  cursor:pointer;
-  opacity:0;
-  /* Use CSS variables so per-swatch translate is preserved while scale animates */
-  --tx: 0px;
-  --ty: 0px;
-  --s: 0.9;
-  transform: translate(-50%,-50%) translate(var(--tx), var(--ty)) scale(var(--s));
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  pointer-events:auto;
-}
+    .clubs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
 
-/* Positions around the center using CSS variables (translate applied via variables) */
-.swatch.s1 { --tx: 0px;   --ty: -66px; }    /* top */
-.swatch.s2 { --tx: 46px;  --ty: -36px; }    /* top-right */
-.swatch.s3 { --tx: 46px;  --ty: 36px; }     /* bottom-right */
-.swatch.s4 { --tx: 0px;   --ty: 66px; }     /* bottom */
-.swatch.s5 { --tx: -46px; --ty: 36px; }     /* bottom-left */
-.swatch.s6 { --tx: -46px; --ty: -36px; }    /* top-left */
-.swatch.s7 { --tx: 80px;  --ty: 0px; }      /* far right (optional) */
+    .club-folder {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
 
-/* When open, show swatches and set scale to 1 (keeps per-swatch translate) */
-#settingsWheel.open #bgSwatches .swatch{
-  opacity:1;
-  --s:1;
-}
+    .club-folder:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
 
-/* Settings menu */
-#settingsMenu{
-  position:fixed;
-  top:60px;
-  right:10px;
-  background:rgba(0,0,0,0.85);
-  border-radius:8px;
-  padding:10px;
-  display:none;
-  flex-direction:column;
-  gap:10px;
-  z-index:1000;
-  min-width:150px;
-}
+    .club-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
 
-#settingsMenu button{
-  padding:6px 10px;
-  border-radius:4px;
-  border:none;
-  cursor:pointer;
-  background:#444;
-  color:white;
-}
+    .club-description {
+      font-size: 14px;
+      opacity: 0.8;
+    }
 
-#settingsMenu img{
-  width:40px;
-  border-radius:50%;
-}
-</style>
+    /* Settings Wheel + Swatches */
+    #settingsWheel {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s ease;
+    }
+
+    #settingsWheel:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    #settingsWheel svg {
+      width: 100%;
+      height: 100%;
+      fill: white;
+    }
+
+    /* Swatches container is centered on the wheel and swatches are positioned relative to that center */
+    #bgSwatches {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .swatch {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      opacity: 0;
+      --tx: 0px;
+      --ty: 0px;
+      --s: 0.9;
+      transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--s));
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      pointer-events: auto;
+    }
+
+    /* Positions around the center using CSS variables */
+    .swatch.s1 { --tx: 0px;   --ty: -66px; }    /* top */
+    .swatch.s2 { --tx: 46px;  --ty: -36px; }    /* top-right */
+    .swatch.s3 { --tx: 46px;  --ty: 36px; }     /* bottom-right */
+    .swatch.s4 { --tx: 0px;   --ty: 66px; }     /* bottom */
+    .swatch.s5 { --tx: -46px; --ty: 36px; }     /* bottom-left */
+    .swatch.s6 { --tx: -46px; --ty: -36px; }    /* top-left */
+    .swatch.s7 { --tx: 80px;  --ty: 0px; }      /* far right (optional) */
+
+    /* When open, show swatches and set scale to 1 */
+    #settingsWheel.open #bgSwatches .swatch {
+      opacity: 1;
+      --s: 1;
+    }
+
+    /* Settings menu */
+    #settingsMenu {
+      position: fixed;
+      top: 60px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+      min-width: 150px;
+      backdrop-filter: blur(10px);
+    }
+
+    #settingsMenu.open {
+      display: flex;
+    }
+
+    #settingsMenu button {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+
+    #settingsMenu button:hover {
+      background: #555;
+    }
+
+    #settingsMenu img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <h1>School Club Management</h1>
+    <div class="clubs-grid" id="clubsGrid">
+      <!-- Club folders will be generated here -->
+    </div>
+  </div>
 
-<!-- Debug Block Added-->
+  <!-- Settings Wheel -->
+  <div id="settingsWheel" role="button" aria-label="Settings menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="2"/>
+      <circle cx="12" cy="5" r="2"/>
+      <circle cx="12" cy="19" r="2"/>
+      <circle cx="5" cy="12" r="2"/>
+      <circle cx="19" cy="12" r="2"/>
+    </svg>
+    <div id="bgSwatches">
+      <!-- Swatches will be generated here -->
+    </div>
+  </div>
 
-<div> Improvement Logs Below Placeholder Beta Yetters. Document
+  <!-- Settings Menu -->
+  <div id="settingsMenu">
+    <button id="exportBtn">Export</button>
+    <button id="importBtn">Import</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script>
+    // Settings wheel toggle functionality
+    const settingsWheel = document.getElementById('settingsWheel');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const bgSwatches = document.getElementById('bgSwatches');
+
+    // Color palette
+    const colors = [
+      '#1a1a1a', // dark gray
+      '#2d5016', // dark green
+      '#1a3a52', // dark blue
+      '#3d1a2d', // dark purple
+      '#522a1a', // dark brown
+      '#1a3d3d', // dark teal
+      '#3d2d1a'  // dark tan
+    ];
+
+    // Initialize swatches
+    function initializeSwatches() {
+      colors.forEach((color, index) => {
+        const swatch = document.createElement('div');
+        swatch.className = `swatch s${index + 1}`;
+        swatch.style.backgroundColor = color;
+        swatch.title = color;
+        swatch.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.body.style.background = color;
+          settingsWheel.classList.remove('open');
+          settingsMenu.classList.remove('open');
+        });
+        bgSwatches.appendChild(swatch);
+      });
+    }
+
+    // Toggle settings menu
+    settingsWheel.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsWheel.classList.toggle('open');
+      settingsMenu.classList.toggle('open');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', () => {
+      settingsWheel.classList.remove('open');
+      settingsMenu.classList.remove('open');
+      settingsWheel.setAttribute('aria-expanded', 'false');
+    });
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializeSwatches);
+  </script>
+</body>
+
+</html>
