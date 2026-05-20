@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: your-github-username/your-repo-name # 👈 CHANGE THIS
+  repo: nowakdeclan-bit/codespace
   branch: main
 
 media_folder: "images"
